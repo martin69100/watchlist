@@ -1,13 +1,13 @@
-import React, { createContext, useContext, ReactNode, useEffect } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { User } from '../types';
-import { ADMIN_USER } from '../constants';
+import { useData } from './DataContext';
 
 interface AuthContextType {
   currentUser: User | null;
-  login: (username: string, password?: string) => boolean;
+  login: (username: string, password?: string) => Promise<boolean>;
   logout: () => void;
-  register: (username: string, password?: string) => boolean;
+  register: (username: string, password?: string) => Promise<boolean>;
   users: User[];
 }
 
@@ -15,50 +15,48 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useLocalStorage<User | null>('currentUser', null);
-  const [users, setUsers] = useLocalStorage<User[]>('users', [ADMIN_USER]);
+  const { users } = useData(); // Get users from DataContext, which fetches from backend
 
-  useEffect(() => {
-    setUsers(prevUsers => {
-      const adminExists = prevUsers.some(u => u.username === ADMIN_USER.username && u.isAdmin);
-      if (!adminExists) {
-        // If admin is missing, filter out any non-admin user named 'admin' and add the official admin user.
-        const otherUsers = prevUsers.filter(u => u.username !== ADMIN_USER.username);
-        return [ADMIN_USER, ...otherUsers];
-      }
-      return prevUsers; // No changes needed
-    });
-  }, [setUsers]);
-
-
-  const login = (username: string, password?: string): boolean => {
-    const user = users.find(u => u.username === username && u.password === password);
-    if (user) {
-      setCurrentUser(user);
-      return true;
+  const login = async (username: string, password?: string): Promise<boolean> => {
+    try {
+        const response = await fetch(`/api/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+        });
+        if (response.ok) {
+            const user = await response.json();
+            setCurrentUser(user);
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Login failed:', error);
+        return false;
     }
-    return false;
   };
 
   const logout = () => {
     setCurrentUser(null);
   };
 
-  const register = (username: string, password?: string): boolean => {
-    if (username.toLowerCase() === ADMIN_USER.username) {
-        return false; // Prevent registering as 'admin'
+  const register = async (username: string, password?: string): Promise<boolean> => {
+    try {
+        const response = await fetch(`/api/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+        });
+        if (response.ok) {
+            const newUser = await response.json();
+            setCurrentUser(newUser);
+            return true;
+        }
+        return false;
+    } catch (error) {
+        console.error('Registration failed:', error);
+        return false;
     }
-    if (users.some(u => u.username === username)) {
-      return false; // User already exists
-    }
-    const newUser: User = {
-      id: `user-${Date.now()}`,
-      username,
-      password,
-      isAdmin: false,
-    };
-    setUsers([...users, newUser]);
-    setCurrentUser(newUser);
-    return true;
   };
 
   return (

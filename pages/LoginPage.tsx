@@ -11,16 +11,21 @@ export const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (login(username, password)) {
+    setIsLoading(true);
+    setError('');
+    const success = await login(username, password);
+    if (success) {
       navigate(APP_ROUTES.HOME);
     } else {
       setError('Invalid username or password.');
     }
+    setIsLoading(false);
   };
 
   return (
@@ -43,6 +48,7 @@ export const LoginPage: React.FC = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 className="mt-1"
                 placeholder="Enter your username"
+                disabled={isLoading}
               />
             </div>
             <div>
@@ -57,11 +63,12 @@ export const LoginPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1"
                 placeholder="Enter your password"
+                disabled={isLoading}
               />
             </div>
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-            <Button type="submit" className="w-full">
-              Sign In
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Signing In...' : 'Sign In'}
             </Button>
           </form>
            <p className="text-center text-sm text-text-secondary">

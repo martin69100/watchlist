@@ -94,7 +94,7 @@ const FilterPanel: React.FC<{
 };
 
 export const HomePage: React.FC = () => {
-  const { animeList, ratings, watchlists } = useData();
+  const { animeList, ratings, watchlists, isLoading } = useData();
   const { currentUser, users } = useAuth();
   const [filters, setFilters] = useState({
     search: '',
@@ -105,7 +105,7 @@ export const HomePage: React.FC = () => {
   });
 
   const recommendations = useMemo(() => {
-    if (currentUser) {
+    if (currentUser && users.length > 0 && ratings.length > 0 && animeList.length > 0) {
         return getRecommendations(currentUser, users, ratings, animeList);
     }
     return [];
@@ -158,6 +158,14 @@ export const HomePage: React.FC = () => {
       return true;
     });
   }, [animeList, ratings, watchlists, filters, currentUser]);
+
+  if (isLoading) {
+      return (
+          <div className="min-h-screen flex items-center justify-center">
+              <p className="text-xl text-text-secondary">Loading your universe...</p>
+          </div>
+      )
+  }
 
   return (
     <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">

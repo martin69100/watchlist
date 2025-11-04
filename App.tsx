@@ -27,8 +27,8 @@ const AuthLayout: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <DataProvider>
+    <DataProvider>
+      <AuthProvider>
         <HashRouter>
           <Routes>
             <Route element={<MainLayout />}>
@@ -43,8 +43,8 @@ const App: React.FC = () => {
             </Route>
           </Routes>
         </HashRouter>
-      </DataProvider>
-    </AuthProvider>
+      </AuthProvider>
+    </DataProvider>
   );
 }
 

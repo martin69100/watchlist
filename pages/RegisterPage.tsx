@@ -11,20 +11,25 @@ export const RegisterPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { register } = useAuth();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password.length < 4) {
       setError('Password must be at least 4 characters long.');
       return;
     }
-    if (register(username, password)) {
+    setIsLoading(true);
+    setError('');
+    const success = await register(username, password);
+    if (success) {
       navigate(APP_ROUTES.HOME);
     } else {
-      setError('Username already taken.');
+      setError('Username already taken or invalid.');
     }
+    setIsLoading(false);
   };
 
   return (
@@ -47,6 +52,7 @@ export const RegisterPage: React.FC = () => {
                 onChange={(e) => setUsername(e.target.value)}
                 className="mt-1"
                 placeholder="Choose a username"
+                disabled={isLoading}
               />
             </div>
             <div>
@@ -61,11 +67,12 @@ export const RegisterPage: React.FC = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 className="mt-1"
                 placeholder="Choose a password"
+                disabled={isLoading}
               />
             </div>
             {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-            <Button type="submit" className="w-full">
-              Sign Up
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? 'Signing Up...' : 'Sign Up'}
             </Button>
           </form>
            <p className="text-center text-sm text-text-secondary">
