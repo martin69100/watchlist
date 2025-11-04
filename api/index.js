@@ -1,8 +1,8 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const { sql } = require('@vercel/postgres');
-const { v4: uuidv4 } = require('uuid');
+import 'dotenv/config';
+import express from 'express';
+import cors from 'cors';
+import { sql } from '@vercel/postgres';
+import { v4 as uuidv4 } from 'uuid';
 
 const app = express();
 
@@ -132,4 +132,4 @@ app.post('/api/watchlists', async (req, res) => {
     }
 });
 
-module.exports = app;
+export default app;

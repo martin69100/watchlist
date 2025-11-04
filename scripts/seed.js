@@ -1,5 +1,5 @@
-require('dotenv').config();
-const { sql } = require('@vercel/postgres');
+import 'dotenv/config';
+import { sql } from '@vercel/postgres';
 
 const ANIME_DATA = [
     {
@@ -143,7 +143,7 @@ async function seedData() {
 async function main() {
     if (!process.env.POSTGRES_URL) {
         console.error('Missing POSTGRES_URL environment variable.');
-        return;
+        process.exit(1); // Exit with an error code
     }
     
     try {
@@ -152,6 +152,7 @@ async function main() {
         console.log('Database seeded successfully!');
     } catch (error) {
         console.error('An error occurred while seeding the database:', error);
+        process.exit(1); // Exit with an error code
     }
 }
 
