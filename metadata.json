@@ -1,0 +1,5 @@
+{
+  "name": "AnimeVerse",
+  "description": "A modern, responsive web application for rating and discovering anime and manga. Features include user profiles, watchlists, detailed work pages with rating distributions, and personalized recommendations.",
+  "requestFramePermissions": []
+}
